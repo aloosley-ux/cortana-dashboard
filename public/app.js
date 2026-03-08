@@ -16,7 +16,8 @@ async function api(path, options = {}) {
 
 // --- State ---
 let currentView = 'dashboard';
-let calYear, calMonth;
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
 let allTasks = [], allContent = [], allEvents = [], allMemories = [], allAgents = [];
 
 // --- View Routing ---
@@ -181,8 +182,6 @@ async function refreshCalendar() {
 
 function renderCalendar() {
   const now = new Date();
-  if (calYear === undefined) { calYear = now.getFullYear(); calMonth = now.getMonth(); }
-
   const label = document.getElementById('cal-month-label');
   label.textContent = new Date(calYear, calMonth).toLocaleString('default', { month: 'long', year: 'numeric' });
 
@@ -561,8 +560,14 @@ function registerEvents() {
   });
 
   // Calendar navigation
-  document.getElementById('cal-prev').addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });
-  document.getElementById('cal-next').addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); });
+  function changeMonth(delta) {
+    calMonth += delta;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    else if (calMonth < 0) { calMonth = 11; calYear--; }
+    renderCalendar();
+  }
+  document.getElementById('cal-prev').addEventListener('click', () => changeMonth(-1));
+  document.getElementById('cal-next').addEventListener('click', () => changeMonth(1));
   document.getElementById('cal-today').addEventListener('click', () => { const now = new Date(); calYear = now.getFullYear(); calMonth = now.getMonth(); renderCalendar(); });
 
   // Config form
