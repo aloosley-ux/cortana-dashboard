@@ -1,51 +1,52 @@
-# Research: Open-Source Dashboard Patterns for OpenClaw
+# Design Research: What We Learned from Previous Mission Controls
 
-## Sources reviewed
+## Referenced Repositories
 
-- TenacitOS: https://github.com/tenacitos/tenacitos
-- Robsannaa Mission Control: https://github.com/robsannaa/mission-control
-- Autensa: https://github.com/autensa/autensa
-- ClawController: https://github.com/openclaw/clawcontroller
-- Builderz Mission Control: https://github.com/builderz/mission-control
+### abhi1693/openclaw-mission-control
 
-## Key architecture patterns
+- **Architecture**: Multi-service with Docker Compose. Separate frontend and backend containers.
+- **UI/UX Strengths**: Feature-rich agent management; detailed monitoring views.
+- **UI/UX Weaknesses**: Complex navigation; overwhelming number of options for new users.
+- **Installation Pain Points**: Requires Docker and Docker Compose; multi-step setup process; environment variable configuration before first run.
+- **Features to Keep**: Comprehensive agent lifecycle management; activity logging for traceability.
+- **Features to Replace**: Docker dependency replaced with single `npm start`; complex config replaced with auto-generating defaults.
 
-1. **Local-first orchestration service**
-   - Best for fast setup and low-friction demos.
-   - Applied here with one Express server handling API + static UI.
+### robsannaa/openclaw-mission-control
 
-2. **SQLite default data store**
-   - Common for lightweight deployment and reproducibility.
-   - Applied here with `openclaw.db` and schema for agents, jobs, and logs.
+- **Architecture**: Local-first with SQLite backend. Express.js API server.
+- **UI/UX Strengths**: Clean, agent-first design; non-expert friendly; clear action buttons.
+- **UI/UX Weaknesses**: Single-page layout without navigation; limited to agents and jobs.
+- **Installation Pain Points**: Minimal — `npm install && npm start` pattern works well.
+- **Features to Keep**: SQLite persistence; config-driven integrations; simple REST API.
+- **Features to Improve**: Added sidebar navigation for multi-view support; added dark mode; expanded feature set beyond agents/jobs.
 
-3. **Config-driven integrations**
-   - Simple config structure makes integrations transparent and extensible.
-   - Applied here with `config.json` managed by the Setup Wizard.
+### crshdn/mission-control
 
-## UX patterns that informed this implementation
+- **Architecture**: Modular, webhook-driven. Supports orchestration integrations.
+- **UI/UX Strengths**: Strong traceability; clear job queue visualization.
+- **UI/UX Weaknesses**: Sparse UI; limited visual feedback; no real-time updates.
+- **Installation Pain Points**: Requires understanding of webhook endpoints; documentation gaps.
+- **Features to Keep**: Modular endpoint design; job lifecycle state machine.
+- **Features to Replace**: Static UI replaced with real-time refreshing; added Kanban drag-and-drop.
 
-1. **Agent-first control surface**
-   - Status and direct actions should be visible immediately.
-   - Implemented with one-click start/stop/chat/remove in the first panel.
+## Design Patterns Adopted
 
-2. **Actionable queue**
-   - Queue visibility and controls should be together.
-   - Implemented with queue summary + per-job lifecycle actions.
+1. **Local-first service**: Everything runs on the user's machine. No external cloud dependencies.
+2. **SQLite storage**: Auto-creates on first run. No database installation or configuration needed.
+3. **Config-driven integrations**: Single `config.json` file manages all external connections.
+4. **Agent-first control**: Agents are visible across Team, Office, and Dashboard views.
+5. **Actionable queue**: Tasks and content move through clear workflow stages.
+6. **Full traceability**: Every action generates an activity log entry.
 
-3. **Traceability**
-   - Auditable event history builds trust and supports debugging.
-   - Implemented with a shared activity log across agents/jobs/git/GitHub actions.
+## Design Philosophy
 
-## Integration patterns
+- **Non-expert usability**: Anyone who can run `npm install` should be able to use the dashboard.
+- **Minimal setup friction**: Zero configuration required for basic local use.
+- **Visual consistency**: Dark mode design system applied globally with consistent spacing, colors, and typography.
+- **Modular extensibility**: New features are added by creating API routes and extending the database schema.
 
-1. **GitHub in context**
-   - Show issue/PR context where operations are performed.
-   - Implemented with issue fetch, assign (comment marker), comment, and close.
+## Sources and Inspirations
 
-2. **Low-complexity git controls**
-   - Non-technical users benefit from constrained operations.
-   - Implemented with pull/push/commit buttons and visible output.
-
-## Why these choices
-
-The dashboard prioritizes non-expert usability: minimal setup (`npm install && npm start`), visible core controls, and plain-language documentation. The API boundaries (`/api/agents`, `/api/jobs`, `/api/github`, `/api/git`, `/api/monitoring`, `/api/config`) keep extension work straightforward.
+- TenacitOS, Robsannaa Mission Control, Autensa, ClawController, Builderz Mission Control
+- Human Interface Guidelines (Apple) for spacing, typography, and interaction patterns
+- GitHub's dark mode design for color palette reference
