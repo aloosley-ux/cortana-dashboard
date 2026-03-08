@@ -22,3 +22,7 @@ Design goals:
 - single-service deployment
 - simple local setup
 - clear endpoint boundaries for extension
+
+Monitoring note:
+- Agent CPU/RAM figures in the list are lightweight placeholder estimates for dashboard UX.
+- Process-level memory/uptime values are real runtime values from Node.js.

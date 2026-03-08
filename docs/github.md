@@ -6,6 +6,10 @@
 4. Save config.
 5. Click **Refresh GitHub Items**.
 
+Security note:
+- `config.json` contains your GitHub token in plain text for local development convenience.
+- Keep `config.json` private and never commit it (it is ignored by `.gitignore`).
+
 Supported dashboard actions:
 - list issues/PRs
 - assign issue to an agent (comment for traceability)

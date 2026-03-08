@@ -22,3 +22,19 @@ test('creates and starts a job', async () => {
   assert.equal(start.status, 200);
   assert.equal(start.body.status, 'active');
 });
+
+test('rejects invalid config payload', async () => {
+  const result = await request(app).put('/api/config').send({ github: {} });
+  assert.equal(result.status, 400);
+  assert.match(result.body.error, /Config must include/);
+});
+
+test('rejects non-numeric cost config', async () => {
+  const result = await request(app).put('/api/config').send({
+    github: { owner: '', repo: '', token: '' },
+    automation: { autoPushAfterCompletedJobs: false },
+    costs: { perCompletedJobUsd: 'not-a-number' },
+  });
+  assert.equal(result.status, 400);
+  assert.match(result.body.error, /must be numeric/);
+});

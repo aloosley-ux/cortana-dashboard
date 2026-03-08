@@ -1,4 +1,5 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
 const { execFile } = require('child_process');
@@ -12,6 +13,16 @@ const CONFIG_PATH = path.join(ROOT, 'config.json');
 
 app.use(express.json());
 app.use(express.static(path.join(ROOT, 'public')));
+app.use(
+  '/api',
+  rateLimit({
+    windowMs: 60 * 1000,
+    max: 120,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests. Please retry shortly.' },
+  })
+);
 
 const db = new Database(DB_PATH);
 db.exec(`
@@ -99,7 +110,8 @@ app.post('/api/agents/:id/:action', (req, res) => {
     nowIso(),
     id
   );
-  logActivity('agent', id, `${action}ed agent ${agent.name}`);
+  const pastTense = action === 'start' ? 'started' : 'stopped';
+  logActivity('agent', id, `${pastTense} agent ${agent.name}`);
   return res.json(getAgent.get(id));
 });
 
@@ -150,6 +162,13 @@ app.post('/api/jobs/:id/:action', (req, res) => {
   const job = getJob.get(id);
   if (!job) return res.status(404).json({ error: 'Job not found' });
   const statuses = { start: 'active', stop: 'stopped', retry: 'pending', complete: 'completed', reschedule: 'pending' };
+  const actionText = {
+    start: 'started',
+    stop: 'stopped',
+    retry: 'retried',
+    complete: 'completed',
+    reschedule: 'rescheduled',
+  };
   const scheduledFor = action === 'reschedule' ? req.body?.scheduledFor || new Date(Date.now() + 3600000).toISOString() : null;
   db.prepare('UPDATE jobs SET status = ?, updated_at = ?, scheduled_for = COALESCE(?, scheduled_for) WHERE id = ?').run(
     statuses[action],
@@ -157,7 +176,7 @@ app.post('/api/jobs/:id/:action', (req, res) => {
     scheduledFor,
     id
   );
-  logActivity('job', id, `${action} job ${job.title}`);
+  logActivity('job', id, `${actionText[action]} job ${job.title}`);
   return res.json(getJob.get(id));
 });
 
@@ -226,6 +245,15 @@ app.post('/api/git/:action', async (req, res) => {
 app.get('/api/config', (req, res) => res.json(readConfig()));
 app.put('/api/config', (req, res) => {
   if (!req.body || typeof req.body !== 'object') return res.status(400).json({ error: 'Invalid config payload' });
+  const hasGithub = req.body.github && typeof req.body.github === 'object';
+  const hasCosts = req.body.costs && typeof req.body.costs === 'object';
+  const hasAutomation = req.body.automation && typeof req.body.automation === 'object';
+  if (!hasGithub || !hasCosts || !hasAutomation) {
+    return res.status(400).json({ error: 'Config must include github, costs, and automation sections' });
+  }
+  if (Number.isNaN(Number(req.body.costs.perCompletedJobUsd))) {
+    return res.status(400).json({ error: 'costs.perCompletedJobUsd must be numeric' });
+  }
   writeConfig(req.body);
   logActivity('system', null, 'Configuration updated');
   return res.json(req.body);

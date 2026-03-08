@@ -1,5 +1,5 @@
 {
-  "name": "cortana-dashboard",
+  "name": "openclaw-dashboard",
   "version": "1.0.0",
   "description": "OpenClaw AI dashboard for agent orchestration and GitHub workflows",
   "main": "server.js",
@@ -21,7 +21,8 @@
   "homepage": "https://github.com/aloosley-ux/cortana-dashboard#readme",
   "dependencies": {
     "better-sqlite3": "^11.10.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.4.1"
   },
   "devDependencies": {
     "supertest": "^7.1.4"
