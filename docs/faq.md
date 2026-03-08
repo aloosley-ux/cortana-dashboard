@@ -35,6 +35,7 @@ All data is stored in a local SQLite file called `openclaw.db` in the project ro
 ## How do I reset the database?
 
 Delete `openclaw.db` and restart the server:
+
 ```bash
 rm openclaw.db
 npm start

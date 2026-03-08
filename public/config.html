@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Configuration</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>Configuration Detection</h1>
+
+    <h2>Auto-Detected Configuration</h2>
+    <div id="config-detection">
+      <p>Checking configuration...</p>
+    </div>
+
+    <script>
+      async function detectConfig() {
+        try {
+          const response = await fetch("/api/config/detect");
+          const data = await response.json();
+
+          if (data.error) {
+            document.getElementById("config-detection").innerHTML =
+              `<p>Error: ${data.error}</p>`;
+          } else {
+            document.getElementById("config-detection").innerHTML = `
+                        <p>OpenClaw Home: ${data.openclawHome}</p>
+                        <p>OpenClaw Token: ${data.openclawToken}</p>
+                    `;
+          }
+        } catch (err) {
+          document.getElementById("config-detection").innerHTML =
+            `<p>Error detecting configuration.</p>`;
+          console.error(err);
+        }
+      }
+
+      window.onload = detectConfig;
+    </script>
+  </body>
+</html>

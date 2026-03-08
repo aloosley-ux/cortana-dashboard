@@ -7,18 +7,21 @@
 Set a different port using an environment variable:
 
 **PowerShell (Windows 11):**
+
 ```powershell
 $env:PORT=3001
 npm start
 ```
 
 **Command Prompt (Windows):**
+
 ```cmd
 set PORT=3001
 npm start
 ```
 
 **macOS/Linux:**
+
 ```bash
 PORT=3001 npm start
 ```

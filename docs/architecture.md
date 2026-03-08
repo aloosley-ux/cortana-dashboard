@@ -65,15 +65,15 @@ Views are shown/hidden via CSS classes. The sidebar navigation triggers view swi
 
 ## Database Schema
 
-| Table | Purpose | Key Fields |
-|-------|---------|------------|
-| agents | Team members | name, role, status, department |
-| jobs | Job queue | title, status, agent_id, scheduled_for |
-| tasks | Kanban board | title, status, priority, tags, assignee_id |
-| content | Content pipeline | title, stage, body, version |
-| events | Calendar | title, start_date, end_date, recurring |
-| memories | Knowledge base | title, content, tags, version |
-| activity_logs | Audit trail | entity_type, entity_id, message |
+| Table         | Purpose          | Key Fields                                 |
+| ------------- | ---------------- | ------------------------------------------ |
+| agents        | Team members     | name, role, status, department             |
+| jobs          | Job queue        | title, status, agent_id, scheduled_for     |
+| tasks         | Kanban board     | title, status, priority, tags, assignee_id |
+| content       | Content pipeline | title, stage, body, version                |
+| events        | Calendar         | title, start_date, end_date, recurring     |
+| memories      | Knowledge base   | title, content, tags, version              |
+| activity_logs | Audit trail      | entity_type, entity_id, message            |
 
 ## Notes
 

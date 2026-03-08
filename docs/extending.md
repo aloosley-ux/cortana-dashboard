@@ -3,6 +3,7 @@
 ## Adding a New Feature Module
 
 1. **Add a database table** in `server.js` within the `db.exec()` block:
+
    ```sql
    CREATE TABLE IF NOT EXISTS your_table (
      id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -12,12 +13,14 @@
    ```
 
 2. **Add API routes** in `server.js` before the catch-all route:
+
    ```javascript
    app.get('/api/your-feature', (req, res) => { ... });
    app.post('/api/your-feature', (req, res) => { ... });
    ```
 
 3. **Add a view** in `public/index.html`:
+
    ```html
    <div class="view" id="view-your-feature">
      <h2 class="view-title">Your Feature</h2>
@@ -26,6 +29,7 @@
    ```
 
 4. **Add a sidebar button** in `index.html`:
+
    ```html
    <button class="nav-btn" data-view="your-feature">
      <span class="nav-icon">★</span> Your Feature
@@ -38,8 +42,9 @@
    - Register any form event handlers in `registerEvents()`
 
 6. **Log activity** for audit trail:
+
    ```javascript
-   logActivity('your-feature', entityId, 'Description of action');
+   logActivity("your-feature", entityId, "Description of action");
    ```
 
 7. **Add tests** in `tests/server.test.js`.

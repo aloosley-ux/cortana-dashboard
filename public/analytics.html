@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>Analytics Dashboard</h1>
+
+    <h2>Token Usage</h2>
+    <ul id="token-usage-list"></ul>
+
+    <h2>Task Throughput</h2>
+    <ul id="task-throughput-list"></ul>
+
+    <h2>Agent Performance</h2>
+    <ul id="agent-performance-list"></ul>
+
+    <script>
+      async function loadAnalytics() {
+        try {
+          const response = await fetch("/api/analytics");
+          const data = await response.json();
+
+          // Populate Token Usage
+          const tokenList = document.getElementById("token-usage-list");
+          tokenList.innerHTML = "";
+          data.tokenUsage.forEach((entry) => {
+            const item = document.createElement("li");
+            item.textContent = `Agent: ${entry.agent}, Tokens Used: ${entry.tokensUsed}, Time: ${new Date(entry.timestamp).toLocaleString()}`;
+            tokenList.appendChild(item);
+          });
+
+          // Populate Task Throughput
+          const taskList = document.getElementById("task-throughput-list");
+          taskList.innerHTML = "";
+          data.taskThroughput.forEach((entry) => {
+            const item = document.createElement("li");
+            item.textContent = `Task ID: ${entry.taskId}, Status: ${entry.status}, Time: ${new Date(entry.timestamp).toLocaleString()}`;
+            taskList.appendChild(item);
+          });
+
+          // Populate Agent Performance (placeholder)
+          const agentList = document.getElementById("agent-performance-list");
+          agentList.innerHTML = "Performance data collection TBD.";
+        } catch (err) {
+          console.error("Error loading analytics:", err);
+        }
+      }
+
+      window.onload = loadAnalytics;
+    </script>
+  </body>
+</html>

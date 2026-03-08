@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Integration</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>GitHub Integration</h1>
+
+    <!-- Issues Section -->
+    <div id="issues">
+      <h2>Issues</h2>
+      <button onclick="fetchIssues()">Load Issues</button>
+      <ul id="issues-list"></ul>
+    </div>
+
+    <!-- Pull Requests Section -->
+    <div id="pull-requests">
+      <h2>Create Pull Request</h2>
+      <form id="pr-form" onsubmit="createPullRequest(event)">
+        <label> Title: <input type="text" id="pr-title" required /> </label>
+        <br />
+        <label>
+          Head Branch: <input type="text" id="pr-head" required />
+        </label>
+        <br />
+        <label>
+          Base Branch: <input type="text" id="pr-base" required />
+        </label>
+        <br />
+        <label> Body: <textarea id="pr-body"></textarea></label>
+        <br />
+        <button type="submit">Create Pull Request</button>
+      </form>
+    </div>
+
+    <script>
+      async function fetchIssues() {
+        try {
+          const response = await fetch("/api/github/issues?state=open");
+          const issues = await response.json();
+          const list = document.getElementById("issues-list");
+          list.innerHTML = "";
+          issues.forEach((issue) => {
+            const item = document.createElement("li");
+            item.textContent = `#${issue.number}: ${issue.title}`;
+            list.appendChild(item);
+          });
+        } catch (err) {
+          console.error("Error loading issues:", err);
+        }
+      }
+
+      async function createPullRequest(event) {
+        event.preventDefault();
+        try {
+          const title = document.getElementById("pr-title").value;
+          const head = document.getElementById("pr-head").value;
+          const base = document.getElementById("pr-base").value;
+          const body = document.getElementById("pr-body").value;
+
+          const response = await fetch("/api/github/prs/create", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ title, head, base, body }),
+          });
+
+          if (response.ok) {
+            alert("Pull request created successfully!");
+            document.getElementById("pr-form").reset();
+          } else {
+            const error = await response.json();
+            alert("Error creating pull request: " + error.error);
+          }
+        } catch (err) {
+          console.error("Error creating pull request:", err);
+          alert("An unexpected error occurred.");
+        }
+      }
+    </script>
+  </body>
+</html>

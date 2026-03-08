@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>Settings</h1>
+
+    <!-- MFA Section -->
+    <div id="mfa-section">
+      <h2>Multi-Factor Authentication</h2>
+      <button id="setup-mfa" onclick="setupMFA()">Set up MFA</button>
+      <div id="mfa-qr" style="display: none">
+        <p>Scan this QR code with your authenticator app:</p>
+        <img id="qr-code" alt="QR Code" />
+        <p>Or enter this secret manually: <span id="mfa-secret"></span></p>
+        <form id="verify-mfa-form" onsubmit="verifyMFA(event)">
+          <label>
+            Enter Token: <input type="text" id="mfa-token" required />
+          </label>
+          <button type="submit">Verify</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      async function setupMFA() {
+        try {
+          const response = await fetch("/api/auth/mfa/setup", {
+            method: "POST",
+          });
+          const data = await response.json();
+          if (data.qrCode && data.secret) {
+            document.getElementById("qr-code").src = data.qrCode;
+            document.getElementById("mfa-secret").textContent = data.secret;
+            document.getElementById("mfa-qr").style.display = "block";
+          } else {
+            alert("Failed to generate MFA setup.");
+          }
+        } catch (err) {
+          console.error("Error setting up MFA:", err);
+          alert("Error setting up MFA.");
+        }
+      }
+
+      async function verifyMFA(event) {
+        event.preventDefault();
+        const token = document.getElementById("mfa-token").value;
+        const secret = document.getElementById("mfa-secret").textContent;
+
+        try {
+          const response = await fetch("/api/auth/mfa/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, secret }),
+          });
+          const data = await response.json();
+          if (data.success) {
+            alert("MFA setup successfully verified!");
+          } else {
+            alert(
+              "MFA verification failed: " + (data.error || "Unknown error."),
+            );
+          }
+        } catch (err) {
+          console.error("Error verifying MFA:", err);
+          alert("Error verifying MFA.");
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+<h2>Agent Status</h2>
+<div id="agent-status">
+  <ul id="agent-list"></ul>
+</div>
+<script>
+  const ws = new WebSocket("ws://localhost:8080");
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type === "agentUpdates" || data.type === "initialAgents") {
+      const list = document.getElementById("agent-list");
+      list.innerHTML = "";
+
+      for (const [id, status] of Object.entries(data.agents)) {
+        const item = document.createElement("li");
+        item.textContent = `Agent ${id}: ${status}`;
+        list.appendChild(item);
+      }
+    }
+  };
+</script>
