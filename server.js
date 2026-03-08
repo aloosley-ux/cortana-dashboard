@@ -1,6 +1,11 @@
-// Adding Zero-Configuration Detection Endpoint
+// Import modules
+const express = require('express'); // Added Express for server setup
 const { execSync } = require('child_process');
 
+const app = express(); // Initialize Express app
+const PORT = 3000; // Define server port
+
+// Adding Zero-Configuration Detection Endpoint
 app.get('/api/config/detect', (req, res) => {
   try {
     const openclawHome = execSync('echo %OPENCLAW_HOME%', {
@@ -17,7 +22,12 @@ app.get('/api/config/detect', (req, res) => {
     }
 
     res.json({ openclawHome, openclawToken });
-  } catch { // Improved handling without unused variable
+  } catch {
     res.status(500).json({ error: 'Failed to auto-detect configuration.' });
   }
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
