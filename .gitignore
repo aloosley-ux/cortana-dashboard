@@ -1,0 +1,4 @@
+node_modules/
+openclaw.db
+config.json
+.DS_Store

@@ -1,0 +1,92 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, Segoe UI, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f5f7fb;
+  color: #0f172a;
+}
+
+header {
+  background: #0f172a;
+  color: #fff;
+  padding: 1rem 1.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+section {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1rem;
+  border: 1px solid #dbe4f0;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.inline-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+input,
+button,
+label {
+  font-size: 0.9rem;
+}
+
+input {
+  border: 1px solid #c9d5e6;
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+}
+
+button {
+  border: 0;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.92;
+}
+
+.card {
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+pre {
+  white-space: pre-wrap;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  min-height: 80px;
+}
+
+.metrics {
+  font-weight: 600;
+}

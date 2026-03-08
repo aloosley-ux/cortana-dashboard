@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenClaw AI Dashboard</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>OpenClaw AI Dashboard</h1>
+      <p>Manage agents, jobs, GitHub issues, and git actions from one screen.</p>
+    </header>
+
+    <main class="grid">
+      <section>
+        <h2>Agents</h2>
+        <form id="add-agent-form" class="inline-form">
+          <input name="name" placeholder="Agent name" required />
+          <input name="role" placeholder="Role (e.g. triage)" required />
+          <button type="submit">Add Agent</button>
+        </form>
+        <div id="agents"></div>
+      </section>
+
+      <section>
+        <h2>Job Queue</h2>
+        <form id="add-job-form" class="inline-form">
+          <input name="title" placeholder="Job title" required />
+          <input name="sourceId" placeholder="Issue/PR # (optional)" />
+          <button type="submit">Queue Job</button>
+        </form>
+        <div id="job-summary" class="metrics"></div>
+        <div id="jobs"></div>
+      </section>
+
+      <section>
+        <h2>GitHub Issues / PRs</h2>
+        <button id="refresh-issues">Refresh GitHub Items</button>
+        <div id="issues"></div>
+      </section>
+
+      <section>
+        <h2>Monitoring & Cost</h2>
+        <div id="monitoring"></div>
+      </section>
+
+      <section>
+        <h2>Git Operations</h2>
+        <div class="inline-form">
+          <button data-git-action="pull">Pull</button>
+          <button data-git-action="push">Push</button>
+        </div>
+        <form id="commit-form" class="inline-form">
+          <input name="message" placeholder="Commit message" required />
+          <button type="submit">Commit</button>
+        </form>
+        <pre id="git-output"></pre>
+      </section>
+
+      <section>
+        <h2>Setup Wizard (single config file)</h2>
+        <form id="config-form">
+          <label>GitHub Owner <input name="owner" /></label>
+          <label>GitHub Repo <input name="repo" /></label>
+          <label>GitHub Token <input name="token" type="password" /></label>
+          <label>Cost per completed job (USD) <input name="cost" type="number" step="0.0001" /></label>
+          <label><input name="autoPush" type="checkbox" /> Auto-push after completed jobs</label>
+          <button type="submit">Save Config</button>
+        </form>
+      </section>
+
+      <section class="full-width">
+        <h2>Activity History</h2>
+        <div id="activity"></div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
