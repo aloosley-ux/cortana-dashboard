@@ -128,7 +128,11 @@ function loadConfig() {
   };
 }
 
-function saveConfig(config) {
+function saveConfig(config, transform) {
+  if (typeof transform === 'function' && fs.existsSync(CONFIG_PATH)) {
+    const existing = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    config = transform(existing) || config;
+  }
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
 }
 
@@ -143,8 +147,19 @@ function logActivity(entityType, entityId, message) {
 // =====================================================================
 
 // --- Config ---
+function maskToken(token) {
+  if (!token || typeof token !== 'string') return token;
+  if (token.length <= 8) return '****';
+  return `${token.slice(0, 4)}****${token.slice(-4)}`;
+}
+
 app.get('/api/config', (req, res) => {
-  res.json(loadConfig());
+  const config = loadConfig();
+  // Never expose the raw GitHub token to the client.
+  if (config.github && config.github.token) {
+    config.github = { ...config.github, token: maskToken(config.github.token), _tokenMasked: true };
+  }
+  res.json(config);
 });
 
 app.put('/api/config', (req, res) => {
@@ -162,7 +177,17 @@ app.put('/api/config', (req, res) => {
       .status(400)
       .json({ error: 'costs.perCompletedJobUsd must be numeric.' });
   }
-  saveConfig(req.body);
+  saveConfig(req.body, existing => {
+    // If the client sent back a masked token, keep the stored real token.
+    if (
+      existing?.github?.token &&
+      req.body.github?.token &&
+      req.body.github.token.includes('****')
+    ) {
+      req.body.github.token = existing.github.token;
+    }
+    return req.body;
+  });
   res.json({ ok: true });
 });
 
@@ -605,6 +630,23 @@ app.get('/api/activity', (req, res) => {
 });
 
 // --- Git Operations ---
+// Mutating operations require either a localhost client or a matching
+// DASHBOARD_TOKEN header. Read-only endpoints stay open.
+function isLocalhost(req) {
+  const addr = req.ip || '';
+  return addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1';
+}
+
+function requireWriteAuth(req, res, next) {
+  const expected = process.env.DASHBOARD_TOKEN;
+  if (isLocalhost(req)) return next();
+  if (expected && req.get('x-dashboard-token') === expected) return next();
+  return res.status(403).json({
+    error:
+      'Mutating operations are restricted to localhost or requests with a valid x-dashboard-token header.',
+  });
+}
+
 function runGit(args) {
   try {
     const output = execFileSync('git', args, { encoding: 'utf-8', cwd: __dirname });
@@ -614,15 +656,15 @@ function runGit(args) {
   }
 }
 
-app.post('/api/git/pull', (req, res) => {
+app.post('/api/git/pull', requireWriteAuth, (req, res) => {
   res.json(runGit(['pull']));
 });
 
-app.post('/api/git/push', (req, res) => {
+app.post('/api/git/push', requireWriteAuth, (req, res) => {
   res.json(runGit(['push']));
 });
 
-app.post('/api/git/commit', (req, res) => {
+app.post('/api/git/commit', requireWriteAuth, (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'message is required.' });
   const addResult = runGit(['add', '-A']);
@@ -666,7 +708,7 @@ app.get('/api/github/issues', async (req, res) => {
   }
 });
 
-app.post('/api/github/issues/:number/assign', async (req, res) => {
+app.post('/api/github/issues/:number/assign', requireWriteAuth, async (req, res) => {
   try {
     const config = loadConfig();
     const assignees = req.body.assignees || [config.github?.owner].filter(Boolean);
@@ -685,7 +727,7 @@ app.post('/api/github/issues/:number/assign', async (req, res) => {
   }
 });
 
-app.post('/api/github/issues/:number/comment', async (req, res) => {
+app.post('/api/github/issues/:number/comment', requireWriteAuth, async (req, res) => {
   try {
     const { body } = req.body;
     if (!body) return res.status(400).json({ error: 'body is required.' });
@@ -704,7 +746,7 @@ app.post('/api/github/issues/:number/comment', async (req, res) => {
   }
 });
 
-app.post('/api/github/issues/:number/close', async (req, res) => {
+app.post('/api/github/issues/:number/close', requireWriteAuth, async (req, res) => {
   try {
     await ghFetch(`/issues/${req.params.number}`, {
       method: 'PATCH',
@@ -721,7 +763,7 @@ app.post('/api/github/issues/:number/close', async (req, res) => {
   }
 });
 
-app.post('/api/github/prs/create', async (req, res) => {
+app.post('/api/github/prs/create', requireWriteAuth, async (req, res) => {
   const { title, head, base, body = '' } = req.body;
   if (!title || !head || !base) {
     return res

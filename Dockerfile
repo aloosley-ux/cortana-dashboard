@@ -1,22 +1,21 @@
 # Dockerfile for Cortana Dashboard
 
-# Base image
 FROM node:18-alpine
 
-# Set the working directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
+# Install dependencies deterministically
 COPY package*.json ./
-
-# Install dependencies
-RUN npm install
+RUN npm ci --omit=dev
 
 # Copy the application source code
 COPY . .
 
-# Expose the application port
-EXPOSE 8080
+# Run as non-root
+USER node
 
-# Start the application
+# The app listens on 3000 (see server.js)
+ENV PORT=3000
+EXPOSE 3000
+
 CMD ["npm", "start"]
