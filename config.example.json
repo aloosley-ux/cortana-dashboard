@@ -1,0 +1,17 @@
+{
+  "github": {
+    "owner": "",
+    "repo": "",
+    "token": ""
+  },
+  "automation": {
+    "autoPushAfterCompletedJobs": false
+  },
+  "costs": {
+    "perCompletedJobUsd": 0.02
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "./openclaw.db"
+  }
+}

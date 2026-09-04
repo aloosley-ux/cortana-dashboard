@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gateways</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>Gateway Management</h1>
+
+    <h2>Add Gateway</h2>
+    <form id="gateway-form" onsubmit="addGateway(event)">
+      <label>Name: <input type="text" id="gateway-name" required /></label>
+      <label>URL: <input type="url" id="gateway-url" required /></label>
+      <button type="submit">Add Gateway</button>
+    </form>
+
+    <h2>Existing Gateways</h2>
+    <ul id="gateway-list"></ul>
+
+    <script>
+      async function addGateway(event) {
+        event.preventDefault();
+        const name = document.getElementById("gateway-name").value;
+        const url = document.getElementById("gateway-url").value;
+
+        try {
+          const response = await fetch("/api/gateways/connect", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, url }),
+          });
+
+          if (response.ok) {
+            alert("Gateway added successfully!");
+            document.getElementById("gateway-form").reset();
+            loadGateways();
+          } else {
+            const error = await response.json();
+            alert("Error adding gateway: " + error.error);
+          }
+        } catch (err) {
+          console.error("Error adding gateway:", err);
+          alert("An unexpected error occurred.");
+        }
+      }
+
+      async function loadGateways() {
+        try {
+          const response = await fetch("/api/gateways");
+          const data = await response.json();
+          const list = document.getElementById("gateway-list");
+          list.innerHTML = "";
+          data.gateways.forEach((gateway) => {
+            const item = document.createElement("li");
+            item.textContent = `${gateway.name}: ${gateway.url}`;
+            list.appendChild(item);
+          });
+        } catch (err) {
+          console.error("Error loading gateways:", err);
+        }
+      }
+
+      window.onload = loadGateways;
+    </script>
+  </body>
+</html>
